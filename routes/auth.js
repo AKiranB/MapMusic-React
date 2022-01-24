@@ -1,23 +1,19 @@
 const router = require("express").Router();
-const User = require('../models/User')
+const { User, validate } = require('../models/User')
 const bcrypt = require('bcrypt')
 const passport = require('passport')
+const Token = require('../models/Token')
+const crypto = require('crypto')
 
 
 
 router.get("/signup", (req, res, next) => {
     res.status(200).send({ message: 'all good' })
-})
-
-router.get("/", (req, res, next) => {
-    res.status(200)
-})
-
+});
 
 router.get("/log-in", (req, res, next) => {
     res.render("log-in")
 })
-
 // .POST ROUTES HERE
 
 router.post('/log-in', passport.authenticate('local', {
@@ -28,57 +24,48 @@ router.post('/log-in', passport.authenticate('local', {
 
 }))
 
-router.post("/sign-up", (req, res, next) => {
-    const username = req.body.username
-    const password = req.body.username
-    const email = req.body.email
-    const emailRepetition = req.body.emailRepetition
-    console.log(req.body)
-    if (password.length < 5) {
-        res.render("sign-up", { message: "Your password should be longer than 5 characters" })
-        return;
-    }
-    if (username.length === 0) {
-        res.render("sign-up", { message: "Your username cannot be empty" })
-        return;
-    }
-    if (email !== emailRepetition) {
-        res.render("sign-up", { message: "Your Email address is incorrect" })
-        return;
-    }
+router.post('/signup', async (req, res) => {
+    try {
+        const {
+            error,
+        } = validate(req.body);
+        if (error) return res.status(400).send(error.details[0].message);
 
-    User.findOne({ username: username })
-        .then(userFromDB => {
-            if (userFromDB !== null) {
-                console.log('did not create user')
-                res.render('sign-up', { message: "This username is unavailable" })
-                return
+        const { email, name, password } = req.body;
 
-            } else {
+        if (name.length < 4) {
+            return res.status(400).send({ message: 'email must be longer than 4 characters' })
+        } else if (password.length < 4) {
+            return res.status(400).send({ message: 'password must be longer than 4 characters' })
+        };
 
-                const salt = bcrypt.genSaltSync()
-                const hash = bcrypt.hashSync(password, salt)
+        let user = await User.findOne({ email: req.body.email });
 
-                User.create({ username: username, password: hash, email: email })
-                    .then(createdUser => {
+        if (user) {
+            return res.status(400).send(({ message: 'A user with this email address already exists' }));
+        };
 
-                        console.log(createdUser)
-                        res.redirect('log-in')
+        const salt = await bcrypt.genSalt(Number(process.env.BCRYPT_SALT))
+        const hashedPassword = await bcrypt.hash(req.body.password, salt)
 
-                    })
-                    .catch(err => {
-                        next(err)
-                    })
-            }
+        user = await User.create({ email, name, password: hashedPassword });
+
+        const token = await Token.create({
+            userId: user._id,
+            token: crypto.randomBytes(32).toString("hex")
         })
-})
+
+        const url = `${process.env.BASE_URL}auth/${user.id}/verify/${token.token}`;
+
+    } catch (error) {
+        res.send('An error occured');
+        console.log(error);
+    };
+});
 
 router.get('/logout', (req, res, next) => {
-
-
     req.logout();
     res.redirect('log-in')
+});
 
-})
-
-module.exports = router
+module.exports = router;

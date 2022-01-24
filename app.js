@@ -38,7 +38,7 @@ app.use(
 // session ends
 // passport begins
 
-const User = require('./models/User')
+const { User } = require('./models/User')
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
@@ -76,15 +76,11 @@ passport.use(
 app.use(passport.initialize())
 app.use(passport.session())
 
-
-
 // default value for title local
 const projectName = "map-music";
 const capitalized = (string) => string[0].toUpperCase() + string.slice(1).toLowerCase();
 
 app.locals.title = `${capitalized(projectName)}`;
-
-
 
 
 // 👇 Start handling routes here
