@@ -1,24 +1,36 @@
-const { Schema, model } = require("mongoose");
+const mongoose = require('mongoose');
 
-// TODO: Please make sure you edit the user model to whatever makes sense in this case
+const { Schema } = mongoose;
+const Joi = require('joi');
+
 const userSchema = new Schema({
-  username: {
+  name: {
     type: String,
-    // unique: true -> Ideally, should be unique, but its up to you
+    required: true,
   },
-  password: String,
-
-  role: {
+  email: {
     type: String,
-    enum: ["user", "admin", "host"],
-    default: "user"
+    required: true,
   },
-
-  email: String
-
+  password: {
+    type: String,
+    required: true,
+  },
+  verified: {
+    type: Boolean,
+    default: false,
+  }
 });
 
-const User = model("User", userSchema);
-//this is user model
+const User = mongoose.model('user', userSchema);
 
-module.exports = User;
+const validate = (user) => {
+  const schema = Joi.object({
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  });
+  return schema.validate(user);
+};
+
+module.exports = { User, validate };

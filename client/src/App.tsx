@@ -3,13 +3,12 @@ import logo from './logo.svg';
 import './App.css';
 import {
   BrowserRouter,
-  BrowserRouter as Router,
   Route,
   Routes,
 } from "react-router-dom";
 import Signup from './pages/Signup';
 
-function App() {
+const App: React.FC = () => {
   return (
     <>
       <BrowserRouter>
