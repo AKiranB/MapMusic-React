@@ -1,4 +1,5 @@
 const features = []
+const animal = 'hello'
 axios.get("/api/events")
     .then(events => {
 
