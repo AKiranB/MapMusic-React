@@ -9,10 +9,9 @@ const eventSchema = new Schema({
     cost: Number,
     genre: Array,
     artists: Array,
-    artistsSpotify: Array,
     openingHours: String,
     ageOfEntrance: String,
-    
+
     location: {
 
         type: Schema.Types.ObjectId,

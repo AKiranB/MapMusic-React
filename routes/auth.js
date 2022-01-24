@@ -5,8 +5,12 @@ const passport = require('passport')
 
 
 
-router.get("/sign-up", (req, res, next) => {
-    res.render("sign-up")
+router.get("/signup", (req, res, next) => {
+    res.status(200).send({ message: 'all good' })
+})
+
+router.get("/", (req, res, next) => {
+    res.status(200)
 })
 
 

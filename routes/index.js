@@ -11,15 +11,6 @@ const { loginCheck } = require('./middleware')
 
 // .GET ROUTES HERE
 
-router.get("/", (req, res, next) => {
-  res.render("index");
-});
-
-
-router.get("/mission", (req, res, next) => {
-  res.render(("mission"))
-})
-
 
 // .POST ROUTES HERE
 
@@ -51,8 +42,6 @@ router.get('/profile', loginCheck(), (req, res, next) => {
 router.get("/map", (req, res, next) => {
   res.render("map")
 })
-
-
 
 
 //create and list event routes
